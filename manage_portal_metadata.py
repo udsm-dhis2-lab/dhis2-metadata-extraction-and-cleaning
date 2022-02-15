@@ -12,6 +12,7 @@ import os
 from utilities.get_server_access import get_user_name_and_password
 from utilities.portal_slider import get_portal_slider_references,get_portal_slider_configs
 from utilities.favorites import get_favorite_details
+from utilities.data_statistics import get_portal_dashboards, get_portal_dashboards_details
 
 # Josephat Mwakyusa, February 14, 2022
 
@@ -40,6 +41,123 @@ async def main():
     username = server_access['username']
     password = server_access['password']
     metadata_rows = []
+
+    metadata_rows.append(['Dashboard','Favorite name','Favorite ID', 'Favorite Type', 'Indicator/Dataelement', 'ID', 'Type'])
+    dashboards_references = await get_portal_dashboards(DEST_BASE_URL, username, password)
+    for key in dashboards_references:
+        dashboard_details = await get_portal_dashboards_details(key, DEST_BASE_URL, username,password)
+        print(json.dumps(dashboard_details))
+        if 'dashboardItems' in dashboard_details:
+            for dashboardItem in dashboard_details['dashboardItems']:
+                if 'chart' in dashboardItem:
+                    path = DEST_BASE_URL+ '/api/charts/' + dashboardItem['chart']['id'] + '.json?fields=id,name,dataDimensionItems[indicator[id,name],dataElement[id,name],programIndicator[id,name]]'
+                    favorite_data = await get_favorite_details(path, username,password)
+                    # print(json.dumps(favorite_data))
+                    for dataDimensionItem in favorite_data['dataDimensionItems']:
+                        if 'indicator' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['indicator']['name'])
+                            metadata.append(dataDimensionItem['indicator']['id'])
+                            metadata.append('INDICATOR')
+                            metadata_rows.append(metadata)
+                        elif 'dataElement' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['dataElement']['name'])
+                            metadata.append(dataDimensionItem['dataElement']['id'])
+                            metadata.append('DATAELEMENT')
+                            metadata_rows.append(metadata)
+                        elif 'programIndicator' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['programIndicator']['name'])
+                            metadata.append(dataDimensionItem['programIndicator']['id'])
+                            metadata.append('PROGRAMINDICATOR')
+                            metadata_rows.append(metadata)
+                
+                elif 'reportTable' in dashboardItem:
+                    path = DEST_BASE_URL+ '/api/reportTables/' + dashboardItem['reportTable']['id'] + '.json?fields=id,name,dataDimensionItems[indicator[id,name],dataElement[id,name],programIndicator[id,name]]'
+                    favorite_data = await get_favorite_details(path, username,password)
+                    for dataDimensionItem in favorite_data['dataDimensionItems']:
+                        if 'indicator' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['indicator']['name'])
+                            metadata.append(dataDimensionItem['indicator']['id'])
+                            metadata.append('INDICATOR')
+                            metadata_rows.append(metadata)
+                        elif 'dataElement' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['dataElement']['name'])
+                            metadata.append(dataDimensionItem['dataElement']['id'])
+                            metadata.append('DATAELEMENT')
+                            metadata_rows.append(metadata)
+                        elif 'programIndicator' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['programIndicator']['name'])
+                            metadata.append(dataDimensionItem['programIndicator']['id'])
+                            metadata.append('PROGRAMINDICATOR')
+                            metadata_rows.append(metadata)
+                elif 'map' in dashboardItem:
+                    path = DEST_BASE_URL+ '/api/maps/' + dashboardItem['map']['id'] + '.json?fields=id,name,dataDimensionItems[indicator[id,name],dataElement[id,name],programIndicator[id,name]]'
+                    favorite_data = await get_favorite_details(path, username,password)
+                    for dataDimensionItem in favorite_data['dataDimensionItems']:
+                        if 'indicator' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['indicator']['name'])
+                            metadata.append(dataDimensionItem['indicator']['id'])
+                            metadata.append('INDICATOR')
+                            metadata_rows.append(metadata)
+                        elif 'dataElement' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['dataElement']['name'])
+                            metadata.append(dataDimensionItem['dataElement']['id'])
+                            metadata.append('DATAELEMENT')
+                            metadata_rows.append(metadata)
+                        elif 'programIndicator' in dataDimensionItem:
+                            metadata = []
+                            metadata.append(dashboard_details['name'])
+                            metadata.append(favorite_data['name'])
+                            metadata.append(favorite_data['id'])
+                            metadata.append('CHART')
+                            metadata.append(dataDimensionItem['programIndicator']['name'])
+                            metadata.append(dataDimensionItem['programIndicator']['id'])
+                            metadata.append('PROGRAMINDICATOR')
+                            metadata_rows.append(metadata)
+                        else :
+                            print("NOTHING")
+                    response = await save_favorite_details_to_csv(metadata_rows)
+
+    metadata_rows.append(['','','','','',''])
     metadata_rows.append(['Favorite name','Favorite ID', 'Favorite Type', 'Indicator/Dataelement', 'ID', 'Type'])
     portal_slider_references = await get_portal_slider_references(DEST_BASE_URL,username,password)
     for slider_key in portal_slider_references:
@@ -77,6 +195,7 @@ async def main():
                     metadata.append(dataDimensionItem['programIndicator']['id'])
                     metadata.append('PROGRAMINDICATOR')
                     metadata_rows.append(metadata)
+        
         elif 'reportTable' in portal_slider_configs:
             path = DEST_BASE_URL+ '/api/reportTables/' + portal_slider_configs['reportTable']['id'] + '.json?fields=id,name,dataDimensionItems[indicator[id,name],dataElement[id,name],programIndicator[id,name]]'
             favorite_data = await get_favorite_details(path, username,password)
