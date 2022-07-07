@@ -15,7 +15,7 @@ async def get_all_indicators_summary(DEST_BASE_URL,username,password):
 
 
 async def get_indicator_details(id,DEST_BASE_URL,username,password):
-    response = requests.get(DEST_BASE_URL + '/api/indicators/' + id + '.json?fields=id,name,description,numerator,numeratorDescription,denominator,denominatorDescription,indicatorType[id,name]', auth=(username,password), verify=False)
+    response = requests.get(DEST_BASE_URL + '/api/indicators/' + id + '.json?fields=id,name,description,numerator,numeratorDescription,denominator,denominatorDescription,indicatorType[id,name],indicatorGroups[id,name]', auth=(username,password), verify=False)
     if response.status_code != 200 and response.status_code != 201:
         print(response.status_code)
         return None
